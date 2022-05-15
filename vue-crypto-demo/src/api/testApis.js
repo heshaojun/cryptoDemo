@@ -18,7 +18,7 @@ export function loginRequiredTest(data) {
 
 export function reqEncryptTest(data) {
     return http({
-        headers: {"req-encrypted-fields": "userName;password"},
+        headers: {"req-encrypted-fields": "userName;password", "cheerfish-data-sign": "password"},
         url: '/reqEncryptTest',
         method: 'post',
         data

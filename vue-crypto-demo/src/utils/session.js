@@ -1,4 +1,4 @@
-import {asymmEncrypt, symmEncrypt} from "./crypto"
+import {asymmEncrypt, symmEncrypt, sign} from "./crypto"
 
 import {v4} from 'uuid';
 
@@ -61,11 +61,12 @@ export function storeToken(token) {
 }
 
 export function login() {
+    Storage.removeItem(ClientKey)
+    debugger
     Storage.setItem(LoginMark, "logged")
 }
 
 export function isLogged() {
-    Storage.removeItem(ClientKey)
     return Storage.getItem(LoginMark) === "logged"
 }
 
@@ -89,4 +90,15 @@ export function createClientKey() {
     console.log("----------客户端密钥密文：", encrypted)
     storeClientKey(clientKey);
     return encrypted;
+}
+
+
+
+export function signData(value) {
+    let signData = sign(value);
+    signData = symmEncrypt(signData, getServerKey())
+    if (isLogged()){
+        return asymmEncrypt(signData, getServerPubKey())
+    }
+    return signData
 }

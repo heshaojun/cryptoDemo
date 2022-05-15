@@ -44,3 +44,8 @@ export function asymmDecrypt(data, priKey) {
     return decryptor.decrypt(data)
 }
 
+export function sign(data) {
+    let words = CryptoJS.enc.Utf8.parse(data);
+    let sign = CryptoJS.SHA256(words);
+    return sign.toString(CryptoJS.enc.Base64)
+}

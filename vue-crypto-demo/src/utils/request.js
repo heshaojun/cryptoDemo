@@ -11,7 +11,9 @@ import {
     storeServerKey,
     storeClientPriKey,
     storeClientPubKey,
-    storeServerPubKey
+    storeServerPubKey,
+    signData,
+
 } from "./session"
 import {symmEncrypt, asymmDecrypt, symmDecrypt} from "./crypto"
 import qs from 'qs'
@@ -27,15 +29,34 @@ http.interceptors.request.use(config => {
     console.log("---------------token === ", token)
     if (token !== null && token !== undefined && token !== "") {
         config.headers['cheerfish-token'] = token;
-        if (getClientKey() === null || getClientKey() === "") {
+        let clientKey = getClientKey();
+        console.log("--------------------clientKey", clientKey)
+        if (clientKey === null || clientKey === undefined || clientKey === "") {
             let clientKey = createClientKey();
             console.log("--------------clientKey", clientKey)
             config.headers['cheerfish-client-key'] = clientKey;
         }
     }
     let encryptedFields = config.headers["req-encrypted-fields"];
-    let signFields = config.headers[""];
+    let signFields = config.headers["cheerfish-data-sign"];
     if (config.method.toUpperCase() === "POST") {
+        if (signFields) {
+            let fields = signFields.split(';');
+            if (fields) {
+                let value = "";
+                for (let i = 0; i < fields.length; i++) {
+                    let key = fields[i]
+                    let data = config.data[key]
+                    if (data) {
+                        value += data;
+                    }
+                }
+                console.log("-----需要签名的数据：", value)
+                let sign = signData(value)
+                console.log("------签名数据", sign)
+                config.headers["cheerfish-data-sign"] = sign;
+            }
+        }
         if (encryptedFields) {
             let fields = encryptedFields.split(';');
             console.log("----加密前数据：", config.data)
@@ -54,8 +75,24 @@ http.interceptors.request.use(config => {
         if (!(config.data instanceof FormData)) {
             config.data = qs.stringify(config.data)
         }
+
     }
     if (config.method.toUpperCase() === "GET") {
+        if (signFields) {
+            let fields = signFields.split(';');
+            if (fields) {
+                let value = "";
+                for (let i = 0; i < fields.length; i++) {
+                    let key = fields[i]
+                    let data = config.params[key]
+                    if (data) {
+                        value += data;
+                    }
+                }
+                console.log("-----需要签名的数据：", value)
+                config.headers["cheerfish-data-sign"] = signData(value);
+            }
+        }
         if (encryptedFields) {
             let fields = encryptedFields.split(';');
             console.log("----加密前数据：", config.params);
@@ -71,6 +108,7 @@ http.interceptors.request.use(config => {
                 console.log("----加密数据：", config.params)
             }
         }
+
     }
     return config;
 }, error => {
@@ -93,6 +131,7 @@ http.interceptors.response.use(resp => {
     let serverKey = resp.headers['set-cheerfish-server-key']
     if (serverKey !== null && serverKey !== undefined && serverKey !== "") {
         console.log("--- 解密前serverKey：", serverKey)
+        debugger
         if (isLogged()) {
             serverKey = asymmDecrypt(serverKey, getClientPriKey());
         } else {
