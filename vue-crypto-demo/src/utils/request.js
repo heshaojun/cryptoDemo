@@ -131,7 +131,6 @@ http.interceptors.response.use(resp => {
     let serverKey = resp.headers['set-cheerfish-server-key']
     if (serverKey !== null && serverKey !== undefined && serverKey !== "") {
         console.log("--- 解密前serverKey：", serverKey)
-        debugger
         if (isLogged()) {
             serverKey = asymmDecrypt(serverKey, getClientPriKey());
         } else {

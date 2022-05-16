@@ -62,7 +62,6 @@ export function storeToken(token) {
 
 export function login() {
     Storage.removeItem(ClientKey)
-    debugger
     Storage.setItem(LoginMark, "logged")
 }
 
