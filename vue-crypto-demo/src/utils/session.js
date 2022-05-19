@@ -9,6 +9,7 @@ const ClientPriKey = "clientPriKey";
 const ClientKey = "clientKey";
 const Token = "token";
 const LoginMark = "loginMark";
+const ReplayMark = "relayMark";
 
 const Storage = sessionStorage;
 
@@ -77,6 +78,19 @@ export function uuid() {
     return v4().replace(/-/g, "");
 }
 
+export function getApiReplayNum(api) {
+    let num = Storage.getItem(ReplayMark + api)
+    if (num === num) {
+        return "0";
+    } else {
+        return num;
+    }
+}
+
+export function setApiReplayNum(api, num) {
+    Storage.setItem(ReplayMark + api, num);
+}
+
 export function createClientKey() {
     let clientKey = uuid();
     console.log("----------客户端密钥原文：", clientKey)
@@ -92,11 +106,10 @@ export function createClientKey() {
 }
 
 
-
 export function signData(value) {
     let signData = sign(value);
     signData = symmEncrypt(signData, getServerKey())
-    if (isLogged()){
+    if (isLogged()) {
         return asymmEncrypt(signData, getServerPubKey())
     }
     return signData
