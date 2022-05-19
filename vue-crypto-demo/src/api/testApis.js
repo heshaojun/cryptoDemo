@@ -33,3 +33,20 @@ export function loginEntryTest(data) {
         data
     })
 }
+
+export function respEncryptedTest(data) {
+    return http({
+        url: '/respEncryptedTest',
+        method: 'post',
+        data
+    })
+}
+
+export function replayDefenseTest(data) {
+    return http({
+        headers: {"cheerfish-replay": "replayDefenseTest",},
+        url: '/replayDefenseTest',
+        method: 'post',
+        data
+    })
+}

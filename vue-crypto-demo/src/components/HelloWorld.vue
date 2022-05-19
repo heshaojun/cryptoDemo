@@ -17,12 +17,27 @@
       <h2>登录入口测试接口</h2>
       <input type="button" value="测试" @click="methodLoginEntryTest">
     </div>
+    <div>
+      <h2>响应数据加密测试接口</h2>
+      <input type="button" value="测试" @click="methodRespEncryptedTest">
+    </div>
+    <div>
+      <h2>防重放攻击测试接口</h2>
+      <input type="button" value="测试" @click="methodReplayDefenseTest">
+    </div>
   </div>
 </template>
 
 <script>
 import {reactive} from "vue"
-import {beforeLoginTest, loginRequiredTest, reqEncryptTest, loginEntryTest} from "@/api/testApis"
+import {
+  beforeLoginTest,
+  loginRequiredTest,
+  reqEncryptTest,
+  loginEntryTest,
+  respEncryptedTest,
+  replayDefenseTest
+} from "@/api/testApis"
 import {login} from "@/utils/session"
 
 export default {
@@ -60,12 +75,24 @@ export default {
         console.error("resp error ===", error)
       })
     }
+    const methodRespEncryptedTest = () => {
+      respEncryptedTest().then(resp => {
+        console.log("响应数据加密测试结果-----", resp)
+      })
+    }
+    const methodReplayDefenseTest = () => {
+      replayDefenseTest().then(resp => {
+        console.log("防重放攻击测试结果-----", resp)
+      })
+    }
     return {
       dataBeforeLoginTest,
       methodBeforeLoginTest,
       methodLoginRequiredTest,
       methodReqEncryptTest,
-      methodLoginEntryTest
+      methodLoginEntryTest,
+      methodRespEncryptedTest,
+      methodReplayDefenseTest
     }
   }
 }

@@ -1,0 +1,40 @@
+server:
+  port: 9090
+spring:
+  redis:
+    database: 1
+    host: 127.0.0.1
+    port: 6379
+    password: 123456
+
+logging:
+  level:
+    info:
+      cheerfish: debug
+    org: info
+cheerfish:
+  rest:
+    security:
+      clientType: browser
+      filterExcludePaths:
+        - /actutor
+        - /heath
+      withoutLoginPaths:
+        - /test/beforeLoginTest
+        - /test/loginRequiredTest
+        - /test/loginEntryTest
+      loggedRejectPaths:
+        - /test/loginRequiredTest
+        - /test/loginEntryTest
+      headerToken: "cheerfish-token"
+      setHeaderToken: "set-cheerfish-token"
+      sessionTimeout: 1d
+      sessionNameSpace: "cheerfish:session:"
+      setHeaderServerKey: "set-cheerfish-server-key"
+      headerClientKey: "cheerfish-client-key"
+      headerSignMark: "cheerfish-data-sign"
+      headerRespDataEncryptedMark: "resp-data-encrypted"
+      setHeaderClientCert: "set-client-cert"
+      headerClientCert: "client-cert"
+      adaptorProps:
+        testApiQps: 20

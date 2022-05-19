@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dc96a2f3-e82e-478b-93b9-61b87494fc6c" name="Default Changelist" comment="" />
+    <list default="true" id="dc96a2f3-e82e-478b-93b9-61b87494fc6c" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vue-crypto-demo/src/api/testApis.js" beforeDir="false" afterPath="$PROJECT_DIR$/vue-crypto-demo/src/api/testApis.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vue-crypto-demo/src/components/HelloWorld.vue" beforeDir="false" afterPath="$PROJECT_DIR$/vue-crypto-demo/src/components/HelloWorld.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vue-crypto-demo/src/utils/request.js" beforeDir="false" afterPath="$PROJECT_DIR$/vue-crypto-demo/src/utils/request.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vue-crypto-demo/src/utils/session.js" beforeDir="false" afterPath="$PROJECT_DIR$/vue-crypto-demo/src/utils/session.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -72,6 +78,8 @@
       <updated>1652082115295</updated>
       <workItem from="1652082117302" duration="1410000" />
       <workItem from="1652311985052" duration="19000" />
+      <workItem from="1652947810358" duration="24000" />
+      <workItem from="1652948000521" duration="136000" />
     </task>
     <servers />
   </component>

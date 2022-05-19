@@ -12,6 +12,18 @@ const LoginMark = "loginMark";
 const ReplayMark = "relayMark";
 
 const Storage = sessionStorage;
+export const HeaderNames = {
+    headerToken: "cheerfish-token",
+    setHeaderToken: "set-cheerfish-token",
+    headerClientKey: "cheerfish-client-key",
+    headerReqEncryptFields: "req-encrypted-fields",
+    headerSignMark: "cheerfish-data-sign",
+    headerReplayMark: "cheerfish-replay",
+    setHeaderReplayMark: "set-cheerfish-replay",
+    setHeaderClientCert: "set-client-cert",
+    setHeaderServerKey: "set-cheerfish-server-key",
+    headerRespDataEncryptedMark: "resp-data-encrypted"
+}
 
 export function getServerPubKey() {
     return Storage.getItem(ServerPubKey)
@@ -80,7 +92,7 @@ export function uuid() {
 
 export function getApiReplayNum(api) {
     let num = Storage.getItem(ReplayMark + api)
-    if (num === num) {
+    if (num === null || num === undefined || num === "") {
         return "0";
     } else {
         return num;
@@ -88,19 +100,17 @@ export function getApiReplayNum(api) {
 }
 
 export function setApiReplayNum(api, num) {
-    Storage.setItem(ReplayMark + api, num);
+    Storage.setItem(ReplayMark + api, "" + num);
 }
 
 export function createClientKey() {
     let clientKey = uuid();
-    console.log("----------客户端密钥原文：", clientKey)
     let encrypted = "";
     if (isLogged()) {
         encrypted = asymmEncrypt(clientKey, getServerPubKey())
     } else {
         encrypted = symmEncrypt(clientKey, getToken())
     }
-    console.log("----------客户端密钥密文：", encrypted)
     storeClientKey(clientKey);
     return encrypted;
 }
@@ -108,9 +118,9 @@ export function createClientKey() {
 
 export function signData(value) {
     let signData = sign(value);
-    signData = symmEncrypt(signData, getServerKey())
     if (isLogged()) {
-        return asymmEncrypt(signData, getServerPubKey())
+        signData = asymmEncrypt(signData, getServerPubKey())
     }
+    signData = symmEncrypt(signData, getServerKey())
     return signData
 }

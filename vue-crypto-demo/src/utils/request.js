@@ -1,6 +1,7 @@
 import axios from 'axios'
 import {Promise} from 'core-js'
 import {
+    HeaderNames,
     getToken,
     storeToken,
     getClientKey,
@@ -29,15 +30,15 @@ http.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded';
 http.interceptors.request.use(config => {
     let token = getToken();
     if (token !== null && token !== undefined && token !== "") {
-        config.headers['cheerfish-token'] = token;
+        config.headers[HeaderNames.headerToken] = token;
         let clientKey = getClientKey();
         if (clientKey === null || clientKey === undefined || clientKey === "") {
             let clientKey = createClientKey();
-            config.headers['cheerfish-client-key'] = clientKey;
+            config.headers[HeaderNames.headerClientKey] = clientKey;
         }
     }
-    let encryptedFields = config.headers["req-encrypted-fields"];
-    let signFields = config.headers["cheerfish-data-sign"];
+    let encryptedFields = config.headers[HeaderNames.headerReqEncryptFields];
+    let signFields = config.headers[HeaderNames.headerSignMark];
     if (config.method.toUpperCase() === "POST") {
         if (signFields) {
             let fields = signFields.split(';');
@@ -51,7 +52,7 @@ http.interceptors.request.use(config => {
                     }
                 }
                 let sign = signData(value)
-                config.headers["cheerfish-data-sign"] = sign;
+                config.headers[HeaderNames.headerSignMark] = sign;
             }
         }
         if (encryptedFields) {
@@ -83,7 +84,7 @@ http.interceptors.request.use(config => {
                         value += data;
                     }
                 }
-                config.headers["cheerfish-data-sign"] = signData(value);
+                config.headers[HeaderNames.headerSignMark] = signData(value);
             }
         }
         if (encryptedFields) {
@@ -100,16 +101,15 @@ http.interceptors.request.use(config => {
             }
         }
     }
-    let replay = config.headers["cheerfish-replay"]
+    let replay = config.headers[HeaderNames.headerReplayMark]
     if (replay) {
-        let apiId = config.headers["api-id"];
+        let apiId = replay
         if (apiId) {
             let replayContext = apiId + "#" + getApiReplayNum(apiId);
             let contextSign = signData(replayContext);
             replayContext = replayContext + "#" + contextSign;
             replayContext = symmEncrypt(replayContext, getServerKey());
-            config.headers["cheerfish-replay"] = replayContext;
-            config.headers["api-id"] = "";
+            config.headers[HeaderNames.headerReplayMark] = replayContext;
         }
     }
     return config;
@@ -117,19 +117,20 @@ http.interceptors.request.use(config => {
     return Promise.reject(error)
 })
 http.interceptors.response.use(resp => {
-    let token = resp.headers['set-cheerfish-token'];
+    let token = resp.headers[HeaderNames.setHeaderToken];
+
     if (token !== null && token !== undefined && token !== "") {
         storeToken(token)
     }
-    let clientCert = resp.headers['set-client-cert'];
+    let clientCert = resp.headers[HeaderNames.setHeaderClientCert];
     if (clientCert !== null && clientCert !== undefined && clientCert !== "") {
         clientCert = symmDecrypt(clientCert, getClientKey())
         let keys = clientCert.split("#");
         storeClientPriKey(keys[0]);
-        storeClientPubKey(keys[1])
-        storeServerPubKey(keys[2])
+        storeClientPubKey(keys[1]);
+        storeServerPubKey(keys[2]);
     }
-    let serverKey = resp.headers['set-cheerfish-server-key']
+    let serverKey = resp.headers[HeaderNames.setHeaderServerKey]
     if (serverKey !== null && serverKey !== undefined && serverKey !== "") {
         if (isLogged()) {
             serverKey = asymmDecrypt(serverKey, getClientPriKey());
@@ -138,26 +139,29 @@ http.interceptors.response.use(resp => {
         }
         storeServerKey(serverKey);
     }
-    let replayMark = resp.headers["set-cheerfish-replay"]
+    let replayMark = resp.headers[HeaderNames.setHeaderReplayMark]
     if (replayMark) {
-        if (isLogged()) {
-            replayMark = symmDecrypt(replayMark, getClientKey())
-        } else {
-            replayMark = asymmDecrypt(replayMark, getClientPriKey())
-        }
+        replayMark = symmDecrypt(replayMark, getClientKey())
         let datas = replayMark.split("#");
         let apiId = datas[0];
         let num = datas[1];
         setApiReplayNum(apiId, num);
     }
-    let respDataEncrypted 
+    let respDataEncrypted = resp.headers[HeaderNames.headerRespDataEncryptedMark]
+    if (respDataEncrypted === 'true') {
+        if (resp.data.data) {
+            resp.data.data = JSON.parse(symmDecrypt(resp.data.data, getClientKey()))
+        }
+    }
     return resp
 }, error => {
-    let token = error.headers['set-cheerfish-token'];
+    let resp = error.response;
+
+    let token = resp.headers[HeaderNames.setHeaderToken];
     if (token !== null && token !== undefined && token !== "") {
         storeToken(token)
     }
-    let clientCert = error.headers['set-client-cert'];
+    let clientCert = resp.headers[HeaderNames.setHeaderClientCert];
     if (clientCert !== null && clientCert !== undefined && clientCert !== "") {
         clientCert = symmDecrypt(clientCert, getClientKey())
         let keys = clientCert.split("#");
@@ -165,7 +169,7 @@ http.interceptors.response.use(resp => {
         storeClientPubKey(keys[1])
         storeServerPubKey(keys[2])
     }
-    let serverKey = error.headers['set-cheerfish-server-key']
+    let serverKey = resp.headers[HeaderNames.setHeaderServerKey]
     if (serverKey !== null && serverKey !== undefined && serverKey !== "") {
         if (isLogged()) {
             serverKey = asymmDecrypt(serverKey, getClientPriKey());
@@ -174,13 +178,9 @@ http.interceptors.response.use(resp => {
         }
         storeServerKey(serverKey);
     }
-    let replayMark = error.headers["set-cheerfish-replay"]
+    let replayMark = resp.headers[HeaderNames.setHeaderReplayMark]
     if (replayMark) {
-        if (isLogged()) {
-            replayMark = symmDecrypt(replayMark, getClientKey())
-        } else {
-            replayMark = asymmDecrypt(replayMark, getClientPriKey())
-        }
+        replayMark = symmDecrypt(replayMark, getClientKey())
         let datas = replayMark.split("#");
         let apiId = datas[0];
         let num = datas[1];
