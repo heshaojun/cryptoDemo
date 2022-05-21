@@ -10,7 +10,7 @@ spring:
 logging:
   level:
     info:
-      cheerfish: debug
+      cheerfish: info
     org: info
 cheerfish:
   rest:

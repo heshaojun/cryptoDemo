@@ -1,5 +1,6 @@
 package info.cheerfish.controller.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 /**
@@ -11,6 +12,7 @@ import lombok.Data;
 @Data
 public class TestVo {
     private String userName;
+    @JSONField(serialize = false)
     private String sex;
 
     public TestVo(String userName, String sex) {
