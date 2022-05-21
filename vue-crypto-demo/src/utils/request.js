@@ -62,7 +62,7 @@ http.interceptors.request.use(config => {
                     let key = fields[i]
                     let data = config.data[key]
                     if (data) {
-                        data = symmEncrypt(data, getServerKey())
+                        data = symmEncrypt(data, getClientKey())
                         config.data[key] = data
                     }
                 }
@@ -94,7 +94,7 @@ http.interceptors.request.use(config => {
                     let key = fields[i]
                     let data = config.params[key]
                     if (data) {
-                        data = symmEncrypt(data, getServerKey())
+                        data = symmEncrypt(data, getClientKey())
                         config.params[key] = data
                     }
                 }
@@ -108,7 +108,7 @@ http.interceptors.request.use(config => {
             let replayContext = apiId + "#" + getApiReplayNum(apiId);
             let contextSign = signData(replayContext);
             replayContext = replayContext + "#" + contextSign;
-            replayContext = symmEncrypt(replayContext, getServerKey());
+            replayContext = symmEncrypt(replayContext, getClientKey());
             config.headers[HeaderNames.headerReplayMark] = replayContext;
         }
     }
@@ -124,7 +124,7 @@ http.interceptors.response.use(resp => {
     }
     let clientCert = resp.headers[HeaderNames.setHeaderClientCert];
     if (clientCert !== null && clientCert !== undefined && clientCert !== "") {
-        clientCert = symmDecrypt(clientCert, getClientKey())
+        clientCert = symmDecrypt(clientCert, getServerKey())
         let keys = clientCert.split("#");
         storeClientPriKey(keys[0]);
         storeClientPubKey(keys[1]);
@@ -141,7 +141,7 @@ http.interceptors.response.use(resp => {
     }
     let replayMark = resp.headers[HeaderNames.setHeaderReplayMark]
     if (replayMark) {
-        replayMark = symmDecrypt(replayMark, getClientKey())
+        replayMark = symmDecrypt(replayMark, getServerKey())
         let datas = replayMark.split("#");
         let apiId = datas[0];
         let num = datas[1];
@@ -150,7 +150,7 @@ http.interceptors.response.use(resp => {
     let respDataEncrypted = resp.headers[HeaderNames.headerRespDataEncryptedMark]
     if (respDataEncrypted === 'true') {
         if (resp.data.data) {
-            resp.data.data = JSON.parse(symmDecrypt(resp.data.data, getClientKey()))
+            resp.data.data = JSON.parse(symmDecrypt(resp.data.data, getServerKey()))
         }
     }
     return resp
@@ -163,7 +163,7 @@ http.interceptors.response.use(resp => {
     }
     let clientCert = resp.headers[HeaderNames.setHeaderClientCert];
     if (clientCert !== null && clientCert !== undefined && clientCert !== "") {
-        clientCert = symmDecrypt(clientCert, getClientKey())
+        clientCert = symmDecrypt(clientCert, getServerKey())
         let keys = clientCert.split("#");
         storeClientPriKey(keys[0]);
         storeClientPubKey(keys[1])
@@ -180,7 +180,7 @@ http.interceptors.response.use(resp => {
     }
     let replayMark = resp.headers[HeaderNames.setHeaderReplayMark]
     if (replayMark) {
-        replayMark = symmDecrypt(replayMark, getClientKey())
+        replayMark = symmDecrypt(replayMark, getServerKey())
         let datas = replayMark.split("#");
         let apiId = datas[0];
         let num = datas[1];

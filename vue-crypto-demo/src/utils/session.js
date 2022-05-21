@@ -121,6 +121,6 @@ export function signData(value) {
     if (isLogged()) {
         signData = asymmEncrypt(signData, getServerPubKey())
     }
-    signData = symmEncrypt(signData, getServerKey())
+    signData = symmEncrypt(signData, getClientKey())
     return signData
 }

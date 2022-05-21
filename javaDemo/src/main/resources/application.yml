@@ -1,5 +1,5 @@
 server:
-  port: 9090
+  port: 9095
 spring:
   redis:
     database: 1
@@ -37,4 +37,4 @@ cheerfish:
       setHeaderClientCert: "set-client-cert"
       headerClientCert: "client-cert"
       adaptorProps:
-        testApiQps: 20
+        testApiQps: 2
